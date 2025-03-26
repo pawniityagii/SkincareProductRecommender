@@ -1,7 +1,9 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import pandas as pd
+from PIL import Image, ImageTk
 
+# Load skincare products from CSV or use default data
 try:
     df = pd.read_csv("skincare_products.csv")
 except FileNotFoundError:
@@ -38,46 +40,62 @@ def recommend_products():
     else:
         messagebox.showinfo("No Matches", "No products found in your budget.")
 
+# Create main application window
 root = tk.Tk()
 root.title("Skincare Product Recommender")
-root.state("zoomed")
-root.configure(bg="#2e1a47")
+root.geometry("800x600")
 
-ttk.Style().configure("TButton", font=("Helvetica", 12, "bold"), background="#5a3d7d", foreground="white")
-ttk.Style().configure("TLabel", font=("Helvetica", 11), background="#2e1a47", foreground="white")
-ttk.Style().configure("TEntry", font=("Helvetica", 11), fieldbackground="#44355b", foreground="white")
-ttk.Style().configure("Treeview", background="#2e1a47", foreground="white", fieldbackground="#2e1a47")
-ttk.Style().configure("Treeview.Heading", font=("Helvetica", 12, "bold"), background="#5a3d7d", foreground="white")
+# Load and set background image
+bg_image = Image.open("skin.jpg")  # Ensure you have a background image file
+bg_image = bg_image.resize((800, 600), Image.Resampling.LANCZOS)
+bg_photo = ImageTk.PhotoImage(bg_image)
 
-title_label = ttk.Label(root, text="🌿 Skincare Product Recommender 🌸", font=("Helvetica", 16, "bold"), background="#2e1a47", foreground="#d8b5ff")
-title_label.pack(pady=10)
+canvas = tk.Canvas(root, width=800, height=600)
+canvas.pack(fill="both", expand=True)
+canvas.create_image(0, 0, image=bg_photo, anchor="nw")
 
-ttk.Label(root, text="Select Your Skin Type:").pack(pady=5)
+# Transparent frame to hold widgets
+frame = tk.Frame(root, bg="white", bd=0, highlightthickness=0)
+frame.place(relx=0.5, rely=0.5, anchor="center")
+
+# Title label
+title_label = ttk.Label(frame, text="🌿 Skincare Product Recommender 🌸", font=("Helvetica", 16, "bold"))
+title_label.grid(row=0, column=0, columnspan=2, pady=10)
+
+# Skin type selection
+ttk.Label(frame, text="Select Your Skin Type:").grid(row=1, column=0, sticky="w", padx=10, pady=5)
 skin_type_var = tk.StringVar()
 skin_types = ["Dry", "Oily", "Combination", "Acne-Prone", "Normal", "All"]
-skin_type_menu = ttk.Combobox(root, textvariable=skin_type_var, values=skin_types, font=("Helvetica", 11))
-skin_type_menu.pack(pady=5)
+skin_type_menu = ttk.Combobox(frame, textvariable=skin_type_var, values=skin_types)
+skin_type_menu.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
 
-ttk.Label(root, text="Select Your Concern:").pack(pady=5)
+# Concern selection
+ttk.Label(frame, text="Select Your Concern:").grid(row=2, column=0, sticky="w", padx=10, pady=5)
 concern_var = tk.StringVar()
 concerns = ["Dryness", "Oiliness", "Acne", "Sun Protection", "Aging", "Brightening", "Exfoliation", "Hydration", "Pores", "Sensitive Skin"]
-concern_menu = ttk.Combobox(root, textvariable=concern_var, values=concerns, font=("Helvetica", 11))
-concern_menu.pack(pady=5)
+concern_menu = ttk.Combobox(frame, textvariable=concern_var, values=concerns)
+concern_menu.grid(row=2, column=1, padx=10, pady=5, sticky="ew")
 
-ttk.Label(root, text="Enter Your Budget (INR):").pack(pady=5)
+# Budget entry
+ttk.Label(frame, text="Enter Your Budget (INR):").grid(row=3, column=0, sticky="w", padx=10, pady=5)
 budget_var = tk.StringVar()
-budget_entry = ttk.Entry(root, textvariable=budget_var, font=("Helvetica", 11))
-budget_entry.pack(pady=5)
+budget_entry = ttk.Entry(frame, textvariable=budget_var)
+budget_entry.grid(row=3, column=1, padx=10, pady=5, sticky="ew")
 
-recommend_button = ttk.Button(root, text="Find Products", command=recommend_products)
-recommend_button.pack(pady=10)
+# Recommend button
+recommend_button = ttk.Button(frame, text="Find Products", command=recommend_products)
+recommend_button.grid(row=4, column=0, columnspan=2, pady=10)
 
-ttk.Label(root, text="Recommended Products:").pack(pady=5)
+# Recommended products label
+ttk.Label(frame, text="Recommended Products:").grid(row=5, column=0, columnspan=2, pady=5)
+
+# Results frame
 columns = ("Product", "Price")
-results_frame = ttk.Treeview(root, columns=columns, show="headings", style="mystyle.Treeview")
+results_frame = ttk.Treeview(frame, columns=columns, show="headings")
 for col in columns:
     results_frame.heading(col, text=col)
     results_frame.column(col, anchor="center", width=200)
-results_frame.pack(pady=10, fill="both", expand=True)
+results_frame.grid(row=6, column=0, columnspan=2, pady=10, padx=10, sticky="nsew")
 
+# Start the main loop
 root.mainloop()
